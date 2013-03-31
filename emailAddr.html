@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="" rel="stylesheet" type="text/css" />
+<style type="text/css">
+*{
+	margin: 0px;
+	padding: 0px;
+	font-family: 'Microsoft Yahei',verdana;
+	font-size: 12px;
+}
+ul,ol,li{
+	list-style-type: none;
+}
+.info{
+	width: 80%;
+	height: 300px;
+	overflow: auto;
+	border: 1px solid gray;
+	padding: 2px;
+}
+.info #info{
+	width: 5000px;
+}
+.email-list{
+	width: 80%;
+	color: #000;
+	height: 200px;
+	position: relative;
+	padding: 2px;
+	border: 1px solid gray;
+	cursor: text;
+}
+ul.suggest-email{
+	padding: 2px 0px;
+	border: 1px solid #AAAAAA;
+	background: #FFF;
+	float: left;
+	position: absolute;
+	left: 40px;
+	top: 50px;
+	cursor: pointer;
+}
+ul.suggest-email li{
+	line-height: 22px;
+	padding: 2px 20px 2px 15px;
+	background: #fff;
+	color: #555;
+}
+ul.suggest-email li.hover{
+	background: #008810;
+	color: #fff;
+}
+.email-list-item, .email-list-item-edit{
+	position:relative;
+	float: left;
+	background: #888888;
+	margin: 2px 3px;
+	padding: 2px 10px;
+	cursor: pointer;
+	line-height: 20px;
+}
+.email-list-item-edit{
+	margin:2px 0px;
+	padding: 2px 5px;
+	background: #fff;
+}
+.email-list-item-edit input{
+	width: 30px;
+	outline: 0px;
+	border: 0px;
+	line-height: 20px;
+	position:absolute;
+	z-index:9px;
+}
+.email-list-item-edit span{
+	visibility:hidden;
+}
+</style>
+<script>
+	window.onload = function(){
+		var suggestUl = document.getElementById("suggest");
+		var emailListDiv = document.getElementById("emailAddr");
+		var hoverSuggest = suggestUl.childNodes[0];
+		emailListDiv.onclick = function(e){
+			var src = e.target;
+			if(src.className === "email-list"){
+				document.getElementById("edit").focus();
+			}
+		}
+		suggestUl.onmouseover = function(e){
+			var src = e.target;
+			if(src.tagName.toLowerCase() === "li"){
+				if(hoverSuggest) hoverSuggest.className = "";
+				src.className = "hover";
+				hoverSuggest = src;
+				log("onmouseover: " + htmlEscape(src.innerHTML));
+			}
+		};
+		suggestUl.onclick = function(e){
+			var src = e.target;
+			log("onclick suggest1: " + htmlEscape(src.outerHTML));
+			while(src.className !== "suggest-email" && src.tagName.toLowerCase() !== "li"){
+				src = src.parentNode;
+			}
+			log("onclick suggest2: " + htmlEscape(src.outerHTML));
+			if(src.tagName.toLowerCase() === "li"){
+				log("onclick selected suggest");
+				insertSuggest(src);
+			}
+		};
+		/*
+		suggestUl.onmouseout = function(e){
+			var src = e.target;
+			if(src.tagName.toLowerCase() === "li"){
+				src.className = "";
+				log("onmouseout: " + htmlEscape(src.innerHTML));
+			}
+		};
+		*/
+		//上下箭头移动suggest邮箱地址
+		document.onkeydown = function(e){
+			log(e.keyCode);
+			var arrowKeyCode = {left:37, up:38, right:39, down:40};
+			if(e.keyCode === arrowKeyCode.up || e.keyCode === arrowKeyCode.down){
+				var down = e.keyCode === 40;
+				if(hoverSuggest){
+					hoverSuggest.className = "";
+					hoverSuggest = hoverSuggest[down ? "nextSibling" : "previousSibling"];
+					/*
+					while(hoverSuggest && hoverSuggest.nodeType !== 1 && hoverSuggest.tagName.toLowerCase() !== "li"){
+						hoverSuggest = hoverSuggest[down ? "nextSibling" : "previousSibling"];
+					}
+					*/
+				}
+				if(!hoverSuggest){
+					var suggestUl = document.getElementById("suggest");
+					hoverSuggest = suggestUl[down ? "firstChild" : "lastChild"];
+				}
+			}
+			hoverSuggest.className = "hover";
+			if(e.keyCode === 13 && hoverSuggest){
+				log("onkeydown 13 select");
+				insertSuggest(hoverSuggest);
+			}
+		};
+		
+		var emailEditInput = document.getElementById("edit");
+		emailEditInput.onkeyup = emailEditInput.onkeydown = function(e){
+			var src = e.target;
+			var editSpan = src.nextSibling;
+			editSpan.innerHTML = src.value + "WW";
+			var width = editSpan.offsetWidth < 30 ? 30 : editSpan.offsetWidth;
+			src.style.width = width + "px";
+			log(editSpan.innerHTML + " " + width);
+		};
+	};
+	function insertSuggest(suggestLi){
+		var editItem = document.getElementById("item-edit");
+		var email = suggestLi.innerHTML;
+		log("insertSuggest :: original innerHTML: " + htmlEscape(email));
+		email = email.replace(/<[\/]?strong>/g,"");
+		log("insertSuggest :: processed innerHTML: " + htmlEscape(email));
+		var div = document.createElement("div");
+		div.innerHTML = "<div class=\"email-list-item\"><strong>" + email.substring(0, email.indexOf("@")) + "</strong><em>&lt;" + email + "&gt;</em></div>";
+		//editItem.parentNode.replaceChild(div.firstChild, editItem);
+		editItem.parentNode.insertBefore(div.firstChild, editItem);
+		log("insertSuggest :: email:" + email);
+	}
+	function log(content){
+		var infoDiv = document.getElementById("info");
+		infoDiv.innerHTML += "<br />" + content;
+		infoDiv.scrollTop = infoDiv.scrollHeight - infoDiv.offsetHeight;
+	}
+	function htmlEscape(str) {
+		if (!str) return str;
+		return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+	}
+</script>
+</head>
+
+<body>
+<div id="emailAddr" class="email-list">
+	<div class="email-list-item">
+		<strong>zhankui.hu</strong><em>&lt;zhankui.hu@quanshi.com&gt;</em>
+	</div>
+	<div class="email-list-item">
+		<strong>feng.wang</strong><em>feng.wang@126.com</em>
+	</div>
+	<div id="item-edit" class="email-list-item-edit">
+		<input id="edit" type="text" class="email-edit-input" /><span>WW</span>
+	</div>
+	<div class="email-list-item-edit">
+		<input type="text" class="email-edit-input" /><span></span>
+	</div>
+</div>
+
+<ul id="suggest" class="suggest-email" onselectstart="return false"><li class="hover">za<strong>n</strong>khu@wiscom.com.cn</li><li>zha<strong>n</strong>kui.hu@quanshi.com</li><li>xi<strong>n</strong>xia<strong>n</strong>g.ya<strong>n</strong>g@quanshi.com</li><li>lo<strong>n</strong>glo<strong>n</strong>g.li@quanshi.com</li></ul>
+
+<div class="info"><div id="info"></div></div>
+</body>
+</html>
