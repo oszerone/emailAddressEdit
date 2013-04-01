@@ -21,7 +21,7 @@ ul,ol,li{
 	border: 1px solid gray;
 	padding: 2px;
 }
-.info #info{
+.info div{
 	width: 5000px;
 }
 .email-list{
@@ -122,7 +122,6 @@ ul.suggest-email li.hover{
 		*/
 		//上下箭头移动suggest邮箱地址
 		document.onkeydown = function(e){
-			log(e.keyCode);
 			var arrowKeyCode = {left:37, up:38, right:39, down:40};
 			if(e.keyCode === arrowKeyCode.up || e.keyCode === arrowKeyCode.down){
 				var down = e.keyCode === 40;
@@ -144,6 +143,8 @@ ul.suggest-email li.hover{
 			if(e.keyCode === 13 && hoverSuggest){
 				log("onkeydown 13 select");
 				insertSuggest(hoverSuggest);
+				document.getElementById("edit").value = "";
+				document.getElementById("edit").nextSibling.innerHTML = "WW";
 			}
 		};
 		
@@ -154,7 +155,35 @@ ul.suggest-email li.hover{
 			editSpan.innerHTML = src.value + "WW";
 			var width = editSpan.offsetWidth < 30 ? 30 : editSpan.offsetWidth;
 			src.style.width = width + "px";
-			log(editSpan.innerHTML + " " + width);
+			log(e.type + ", keyCode = " + e.keyCode + ", " + editSpan.innerHTML + " " + width);
+			var editItem = document.getElementById("item-edit");
+			if(e.type === "keydown" && src.value === ""){
+				if(e.keyCode === 8){
+					var previousItem = editItem.previousSibling;
+					while(previousItem && previousItem.nodeType !== 1){//应该比较class?
+						previousItem = previousItem.previousSibling;
+					}
+					if(previousItem && previousItem.nodeType === 1){
+						editItem.parentNode.removeChild(previousItem);
+					}
+				}else if(e.keyCode === 37 || e.keyCode === 39){
+					log("=======" + e.keyCode);
+					var left = e.keyCode === 37;
+					var insBefItem = editItem[left ? "previousSibling" : "nextSibling"];
+					while(insBefItem && insBefItem.nodeType !== 1){//应该比较class?
+						insBefItem = insBefItem[left ? "previousSibling" : "nextSibling"];
+					}
+					log("=======" + htmlEscape(insBefItem.innerHTML));
+					if(insBefItem && insBefItem.nodeType === 1){
+						if(left){
+							editItem.parentNode.insertBefore(editItem, insBefItem);
+						}else{
+							editItem.parentNode.insertBefore(insBefItem, editItem);
+						}
+						src.focus();
+					}
+				}
+			}
 		};
 	};
 	function insertSuggest(suggestLi){
@@ -171,7 +200,7 @@ ul.suggest-email li.hover{
 	}
 	function log(content){
 		var infoDiv = document.getElementById("info");
-		infoDiv.innerHTML += "<br />" + content;
+		infoDiv.firstChild.innerHTML += "<br />" + content;
 		infoDiv.scrollTop = infoDiv.scrollHeight - infoDiv.offsetHeight;
 	}
 	function htmlEscape(str) {
@@ -197,8 +226,8 @@ ul.suggest-email li.hover{
 	</div>
 </div>
 
-<ul id="suggest" class="suggest-email" onselectstart="return false"><li class="hover">za<strong>n</strong>khu@wiscom.com.cn</li><li>zha<strong>n</strong>kui.hu@quanshi.com</li><li>xi<strong>n</strong>xia<strong>n</strong>g.ya<strong>n</strong>g@quanshi.com</li><li>lo<strong>n</strong>glo<strong>n</strong>g.li@quanshi.com</li></ul>
+<ul id="suggest" class="suggest-email" onselectstart="return false"><li class="hover">ca<strong>n</strong>mi<strong>n</strong>.ji<strong>n</strong>@wiscom.com.cn</li><li>zha<strong>n</strong>kui.hu@quanshi.com</li><li>xi<strong>n</strong>xia<strong>n</strong>g.ya<strong>n</strong>g@quanshi.com</li><li>lo<strong>n</strong>glo<strong>n</strong>g.li@quanshi.com</li></ul>
 
-<div class="info"><div id="info"></div></div>
+<div id="info" class="info"><div></div></div>
 </body>
 </html>
