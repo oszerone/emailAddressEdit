@@ -5,7 +5,7 @@
 <title></title>
 <link href="" rel="stylesheet" type="text/css" />
 <style type="text/css">
-*{
+div, ul, ol, li, textarea, span, strong, em{
 	margin: 0px;
 	padding: 0px;
 	font-family: 'Microsoft Yahei',verdana;
@@ -24,7 +24,7 @@ ul,ol,li{
 .info div{
 	width: 5000px;
 }
-.email-list{
+.email-list, .suggest-list{
 	width: 80%;
 	color: #000;
 	height: 200px;
@@ -33,6 +33,9 @@ ul,ol,li{
 	border: 1px solid gray;
 	cursor: text;
 }
+.suggest-list{
+	height:100px;
+}
 ul.suggest-email{
 	padding: 2px 0px;
 	border: 1px solid #AAAAAA;
@@ -40,7 +43,7 @@ ul.suggest-email{
 	float: left;
 	position: absolute;
 	left: 40px;
-	top: 50px;
+	top: 220px;
 	cursor: pointer;
 }
 ul.suggest-email li{
@@ -80,28 +83,31 @@ ul.suggest-email li.hover{
 }
 </style>
 <script>
-	var suggestUl, emailListDiv, hoverSuggest;
+	var suggestUl, itemList, hoverSuggest;
 	window.onload = function(){
+		init();
 		suggestUl = document.getElementById("suggest");
 		hoverSuggest = suggestUl.childNodes[0];
-		emailListDiv = document.getElementById("emailAddr");
+		itemList = document.getElementById("emailAddr");
 		initEdit();
 		bindEvent();
 	};
+	function init(){
+		Date.prototype.format = function(){
+			return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate()
+				+ " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+		}
+	}
 	function initEdit(){
-		emailListDiv.innerHTML = '<div id="item-edit" class="email-list-item-edit">'
+		itemList.innerHTML = '<div id="item-edit" class="email-list-item-edit">'
 								+ '<input id="edit" type="text" class="email-edit-input" />'
 								+ '<span>WW</span>'
 							+ '</div>';
-		return emailListDiv.firstChild;
+		return itemList.firstChild;
 	}
 	function bindEvent(){
-		var emailEditInput = document.getElementById("edit")
-		emailListDiv.onclick = function(e){
-			var src = e.target;
-			if(src.className === "email-list"){
-				emailEditInput.focus();
-			}
+		itemList.onclick = itemList.ondblclick = function(e){
+			focusInput();
 		}
 		suggestUl.onmouseover = function(e){//selection effect
 			var src = e.target;
@@ -139,10 +145,29 @@ ul.suggest-email li.hover{
 				insertSuggest(hoverSuggest);
 			}
 		};
-		emailEditInput.onkeyup = emailEditInput.onkeydown = emailEditInput.onkeypress = function(e){
-			keyEventEdit(e);
-			arrowAndBackspace(e);
+		var editInput = document.getElementById("item-edit").childNodes[0];
+		editInput.onkeydown = editInput.onkeypress = editInput.onkeyup = function(e){
+			changeInputValue(e.target.value);
+			checkToDo(e);
 		};
+	}
+	function checkToDo(e){//需要控制时间，防止按住不放时全部删除，或者按住不放只删除一个的交互缺陷
+		var arrAndBackDelKeys = {"8":"backspace","37":"left","39":"right","46":"delete"};
+		if(e.keyCode in arrAndBackDelKeys){
+			//现在如果删除最后一个字母时会删除前一个item
+			if(e.type === "keyup" && e.target.value === ""){//keyup和keydown改如何抉择
+				if(e.keyCode === 8){
+					deletePrevItem();
+				}else if(e.keyCode === 46){
+					deleteNextItem();
+				}else if(e.keyCode === 37){
+					moveInputItemToLeft();
+				}else{
+					moveInputItemToRight();
+				}
+				//e.target.focus();
+			}
+		}
 	}
 	function createItem(email){
 		var div = document.createElement("div");
@@ -155,45 +180,54 @@ ul.suggest-email li.hover{
 		div.removeChild(item);
 		return item;
 	}
-	function keyEventEdit(e){
-		var src = e.target;
-		var editSpan = src.nextSibling;
-		editSpan.innerHTML = src.value + "WW";
-		var width = editSpan.offsetWidth < 30 ? 30 : editSpan.offsetWidth;
-		src.style.width = width + "px";
-		log(now() + " : type = " + e.type + ", keyCode = " + e.keyCode + ", " + editSpan.innerHTML + " " + width);
+	function deletePrevItem(){
+		var inputItem = document.getElementById("item-edit");
+		itemList.removeChild(inputItem.previousSibling);
 	}
-	function arrowAndBackspace(e){//需要控制时间，防止按住不放时全部删除，或者按住不放只删除一个的交互缺陷
-		var editItem = document.getElementById("item-edit");
-		var arrAndBackDelKeys = {"8":"backspace","37":"left","39":"right","46":"delete"};
-		if(e.keyCode in arrAndBackDelKeys){
-			var src = e.target;
-			//现在如果删除最后一个字母时会删除前一个item
-			if(e.type === "keyup" && src.value === ""){//keyup和keydown改如何抉择
-				var item = editItem[(e.keyCode === 39 || e.keyCode === 46) ? "nextSibling" : "previousSibling"];
-				if(item){
-					if(e.keyCode === 8){
-						editItem.parentNode.removeChild(item);
-					}else if(e.keyCode === 46){
-						editItem.parentNode.removeChild(item);
-					}else if(e.keyCode === 37){
-						editItem.parentNode.insertBefore(editItem, item);
-					}else{
-						editItem.parentNode.insertBefore(item, editItem);
-					}
-				}
-				src.focus();
-			}
-		}
+	function deleteNextItem(){
+		var inputItem = document.getElementById("item-edit");
+		itemList.removeChild(inputItem.nextSibling);
+	}
+	function editItem(item){
+		var email = item.childNodes[1].innerHTML.replace(/(&lt;)|(&gt;)/g, "");
+		log("editItem :: email = " + htmlEscape(email));
+		var inputItem = document.getElementById("item-edit");
+		itemList.replaceChild(inputItem, item);
+		changeInputValue(email);
+	}
+	function moveInputItemToLeft(){
+		var inputItem = document.getElementById("item-edit");
+		itemList.insertBefore(inputItem.previousSibling, inputItem.nextSibling);
+	}
+	function moveInputItemToRight(){
+		var inputItem = document.getElementById("item-edit");
+		itemList.insertBefore(inputItem.nextSibling, inputItem);
+	}
+	function changeInputValue(value){//可以控制当value和上一次一样时不再修改dom节点
+		var inputItem = document.getElementById("item-edit");
+		var editInput = inputItem.childNodes[0], editSpan = inputItem.childNodes[1];
+		editInput.value = value;
+		editSpan.innerHTML = value + "WW";
+		var width = editSpan.offsetWidth < 30 ? 30 : editSpan.offsetWidth;
+		editInput.style.width = width + "px";
+		log("changeInputValue :: value = " + htmlEscape(value) + ", width = " + width);
 	}
 	function insertSuggest(suggestLi){
-		var editItem = document.getElementById("item-edit");
+		var inputItem = document.getElementById("item-edit");
 		var email = suggestLi.innerHTML.replace(/<[\/]?strong>/g,"");
-		editItem.parentNode.insertBefore(createItem(email), editItem);
-		var emailEditInput = document.getElementById("edit");
-		emailEditInput.value = "";
-		emailEditInput.nextSibling.innerHTML = "WW";
-		log("insertSuggest :: email:" + email);
+		var newItem = createItem(email);
+		itemList.insertBefore(newItem, inputItem);
+		newItem.ondblclick = function(e){
+			var src = e.target;
+			while(src.className !== "email-list-item"){
+				src = src.parentNode;
+			}
+			editItem(src);
+		};
+		var editInput = inputItem.childNodes[0];
+		editInput.value = "";
+		editInput.nextSibling.innerHTML = "WW";
+		log("insertSuggest :: email = " + htmlEscape(email));
 	}
 	function hoverSuggestLi(li){
 		if(hoverSuggest){
@@ -202,9 +236,12 @@ ul.suggest-email li.hover{
 		li.className = (hoverSuggest.className + " hover").replace(/^\s+|\s+$/g, "");
 		hoverSuggest = li;
 	}
+	function focusInput(){
+		document.getElementById("edit").focus();
+	}
 	function log(content){
 		var infoDiv = document.getElementById("info");
-		infoDiv.firstChild.innerHTML += "<br />" + content;
+		infoDiv.firstChild.innerHTML += "<br />" + now() + " :: " + content;
 		infoDiv.scrollTop = infoDiv.scrollHeight - infoDiv.offsetHeight;
 	}
 	function htmlEscape(str) {
@@ -212,12 +249,16 @@ ul.suggest-email li.hover{
 		return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 	}
 	function now(){
-		return new Date().getTime();
+		return new Date().format();
 	}
 </script>
 </head>
 
 <body>
+<div>
+<h3>请在下面输入框中输入已经记录的邮箱：</h3>
+<textarea id="suggest-list" class="suggest-list">zhankui@quanshi.com;xinxiang@quanshi.com;longlong@quanshi.com;liujie@quanshi.com;jicheng@quanshi.com;hehuan@quanshi.com;</textarea>
+</div>
 <div id="emailAddr" class="email-list"></div>
 	<!-- 防止编辑区域有任何空格和换行符，导致nextSibling、previousSibling不好找
 	<div class="email-list-item">
@@ -231,8 +272,7 @@ ul.suggest-email li.hover{
 	</div>
 	-->
 
-
-<ul id="suggest" class="suggest-email" onselectstart="return false"><li class="hover">ca<strong>n</strong>mi<strong>n</strong>.ji<strong>n</strong>@wiscom.com.cn</li><li>zha<strong>n</strong>kui.hu@quanshi.com</li><li>xi<strong>n</strong>xia<strong>n</strong>g.ya<strong>n</strong>g@quanshi.com</li><li>lo<strong>n</strong>glo<strong>n</strong>g.li@quanshi.com</li></ul>
+<ul id="suggest" class="suggest-email" onselectstart="return false"><li class="hover">ca<strong>n</strong>mi<strong>n</strong>@quanshi.com</li><li>zha<strong>n</strong>kui@quanshi.com</li><li>xi<strong>n</strong>xia<strong>n</strong>g@quanshi.com</li><li>lo<strong>n</strong>glo<strong>n</strong>g@quanshi.com</li></ul>
 
 <div id="info" class="info"><div></div></div>
 </body>
