@@ -11,13 +11,21 @@
 </script>
 </head>
 
-<body>
+<body onselectstart="return false">
 <div>
-<h3>请在下面输入框中输入已经记录的邮箱：</h3>
-<textarea id="history-list" class="history-list">zhankui@quanshi.com;xinxiang@quanshi.com;longlong@quanshi.com;liujie@quanshi.com;jicheng@quanshi.com;hehuan@quanshi.com;</textarea>
+	<h3>请在下面输入框中输入已经记录的邮箱：
+		<span>（望将体验缺陷邮件至zhankui.hu@quanshi.com，谢谢！）</span>
+		<input type="button" value="apply ?" title="更改后不要忘了点我哦" onclick="setHistoryList()" />
+	</h3>
+	<textarea id="history-list" class="history-list">
+	zhankui.hu@quanshi.com;xinxiang.yang@quanshi.com;longlong.li@quanshi.com;jie.liu_1@quanshi.com;
+	dayang.liu@quanshi.com;canmin.jin@quanshi.com;yanlong.wan@quanshi.com;hongzhu.zhang@quanshi.com;
+	liang.wang_2@quanshi.com;jicheng.wu@quanshi.com;huan.he@quanshi.com;
+	</textarea>
 </div>
 <div id="emailAddr" class="email-list"></div>
-	<!-- 防止编辑区域有任何空格和换行符，导致nextSibling、previousSibling不好找
+<!-- 防止编辑区域有任何空格和换行符，导致nextSibling、previousSibling不好找
+<div id="emailAddr" class="email-list">
 	<div class="email-list-item">
 		<strong>zhankui.hu</strong><em>&lt;zhankui.hu@quanshi.com&gt;</em>
 	</div>
@@ -27,10 +35,18 @@
 	<div id="item-edit" class="email-list-item-edit">
 		<input id="edit" type="text" class="email-edit-input" /><span>WW</span>
 	</div>
-	-->
+</div>
+-->
 
-<ul id="suggest" class="suggest-email" onselectstart="return false"><li class="hover">ca<strong>n</strong>mi<strong>n</strong>@quanshi.com</li><li>zha<strong>n</strong>kui@quanshi.com</li><li>xi<strong>n</strong>xia<strong>n</strong>g@quanshi.com</li><li>lo<strong>n</strong>glo<strong>n</strong>g@quanshi.com</li></ul>
-
+<ul id="suggest" class="suggest-email"></ul>
+<!--
+<ul id="suggest" class="suggest-email">
+	<li class="hover">ca<strong>n</strong>mi<strong>n</strong>@quanshi.com</li>
+	<li>zha<strong>n</strong>kui@quanshi.com</li>
+	<li>xi<strong>n</strong>xia<strong>n</strong>g@quanshi.com</li>
+	<li>lo<strong>n</strong>glo<strong>n</strong>g@quanshi.com</li>
+</ul>
+-->
 <div id="info" class="info"><div></div></div>
 </body>
 </html>

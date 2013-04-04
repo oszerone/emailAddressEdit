@@ -1,8 +1,15 @@
+html, body{
+	overflow-x:hidden;
+}
 div, ul, ol, li, textarea, span, strong, em{
 	margin: 0px;
 	padding: 0px;
 	font-family: 'Microsoft Yahei',verdana;
 	font-size: 12px;
+}
+h3 span{
+	font-weight:normal;
+	font-size:12px;
 }
 ul,ol,li{
 	list-style-type: none;
@@ -25,6 +32,7 @@ ul,ol,li{
 	padding: 2px;
 	border: 1px solid gray;
 	cursor: text;
+	overflow: auto;
 }
 .history-list{
 	height:100px;
@@ -38,6 +46,8 @@ ul.suggest-email{
 	left: 40px;
 	top: 220px;
 	cursor: pointer;
+	visibility: hidden;
+	overflow:auto;
 }
 ul.suggest-email li{
 	line-height: 22px;
