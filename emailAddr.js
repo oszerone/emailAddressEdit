@@ -58,6 +58,7 @@ function bindEvent(){
 		if(src.tagName.toLowerCase() === "li"){
 			log("onclick selected suggest");
 			insertSuggest(src);
+			focusInput();
 		}
 	};
 	var editInput = document.getElementById("item-edit").childNodes[0];
