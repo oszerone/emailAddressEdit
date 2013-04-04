@@ -59,9 +59,9 @@ function bindEvent(){
 	};
 }
 function checkToDo(e){//需要控制时间，防止按住不放时全部删除，或者按住不放只删除一个的交互缺陷
-	if(isActionKey(e.keyCode)){
-		//现在如果删除最后一个字母时会删除前一个item
-		if(e.type === "keyup"){//keyup和keydown改如何抉择
+	//现在如果删除最后一个字母时会删除前一个item
+	if(e.type === "keyup"){//keyup和keydown改如何抉择//可以频繁执行几行代码，但是不要频繁执行十几行代码
+		if(isActionKey(e.keyCode)){
 			log("=========" + e.type + "=======" + e.keyCode);
 			if(e.target.value === ""){
 				if(e.keyCode === actionKeys.BACKSPACE){
