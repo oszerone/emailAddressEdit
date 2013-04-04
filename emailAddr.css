@@ -1,0 +1,76 @@
+div, ul, ol, li, textarea, span, strong, em{
+	margin: 0px;
+	padding: 0px;
+	font-family: 'Microsoft Yahei',verdana;
+	font-size: 12px;
+}
+ul,ol,li{
+	list-style-type: none;
+}
+.info{
+	width: 80%;
+	height: 250px;
+	overflow: auto;
+	border: 1px solid gray;
+	padding: 2px;
+}
+.info div{
+	width: 5000px;
+}
+.email-list, .history-list{
+	width: 80%;
+	color: #000;
+	height: 180px;
+	position: relative;
+	padding: 2px;
+	border: 1px solid gray;
+	cursor: text;
+}
+.history-list{
+	height:100px;
+}
+ul.suggest-email{
+	padding: 2px 0px;
+	border: 1px solid #AAAAAA;
+	background: #FFF;
+	float: left;
+	position: absolute;
+	left: 40px;
+	top: 220px;
+	cursor: pointer;
+}
+ul.suggest-email li{
+	line-height: 22px;
+	padding: 2px 20px 2px 15px;
+	background: #fff;
+	color: #555;
+}
+ul.suggest-email li.hover{
+	background: #008810;
+	color: #fff;
+}
+.email-list-item, .email-list-item-edit{
+	position:relative;
+	float: left;
+	background: #888888;
+	margin: 2px 3px;
+	padding: 2px 10px;
+	cursor: pointer;
+	line-height: 20px;
+}
+.email-list-item-edit{
+	margin:2px 0px;
+	padding: 2px 5px;
+	background: #fff;
+}
+.email-list-item-edit input{
+	width: 30px;
+	outline: 0px;
+	border: 0px;
+	line-height: 20px;
+	position:absolute;
+	z-index:9px;
+}
+.email-list-item-edit span{
+	visibility:hidden;
+}
