@@ -5,7 +5,8 @@ var actionKeys = {
 	"UP" : 38,
 	"RIGHT" : 39,
 	"DOWN" : 40,
-	"DELETE" : 46
+	"DELETE" : 46,
+	"SEMICOLON" : 186
 };
 //xxxTime用于控制操作频率，减少cpu负荷
 var debug = true, lastLogTime = 0, logBuffer = "";
@@ -22,6 +23,9 @@ function init(){
 	Date.prototype.format = function(){
 		return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate()
 			+ " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
+	}
+	String.prototype.trim = String.prototype.trim || function(){
+		return this.replace(/^\s+|\s+$/g, "");
 	}
 	setHistoryList();
 }
@@ -41,8 +45,17 @@ function initEdit(){
 }
 function bindEvent(){
 	itemList.onclick = itemList.ondblclick = function(e){
+		if(e.type === "dblclick"){
+			var src = e.target;
+			while(src.className !== "email-list-item" && src.className !== "email-list"){
+				src = src.parentNode;
+			}
+			if(src.className === "email-list-item"){
+				editItem(src);
+			}
+		}
 		focusInput();
-	}
+	};
 	suggestUl.onmouseover = function(e){//selection effect
 		var src = e.target;
 		if(src.tagName.toLowerCase() === "li"){
@@ -71,9 +84,9 @@ function checkToDo(e){//函数名称不太好
 	var now = new Date().getTime();
 	log("checkToDo :: enter, lastActionTime = " + lastActionTime + ", type = " + e.type);
 	//现在如果删除最后一个字母时会删除前一个item
-	if(e.type === "keydown" && (now - lastActionTime) > 25){//这个响应时间需要调查
+	if(e.type === "keydown" && (now - lastActionTime) > 50){//这个响应时间需要调查
 		if(isActionKey(e.keyCode)){
-			log("checkToDo :: type = " + e.type + ", keyCode" + e.keyCode);
+			log("checkToDo :: type = " + e.type + ", keyCode = " + e.keyCode);
 			if(e.target.value === ""){
 				if(e.keyCode === actionKeys.BACKSPACE){
 					deletePrevItem();
@@ -96,6 +109,12 @@ function checkToDo(e){//函数名称不太好
 			lastActionTime = now;
 		}
 	}else if(e.type === "keyup"){
+		if(e.keyCode === actionKeys.SEMICOLON){
+			var val = e.target.value.replace(/;/g, "").trim();
+			if(val){
+				insertItem(val);
+			}
+		}
 		lastActionTime = 0;
 	}
 	log("checkToDo :: end, timeInterval = " + (now - lastActionTime));
@@ -110,6 +129,12 @@ function createItem(email){
 	var item = div.firstChild;
 	div.removeChild(item);
 	return item;
+}
+function insertItem(email, name){
+	var item = createItem(email);
+	var inputItem = document.getElementById("item-edit");
+	itemList.insertBefore(item, inputItem);
+	changeInputValue("");
 }
 function deletePrevItem(){
 	var inputItem = document.getElementById("item-edit");
@@ -209,24 +234,17 @@ function insertSuggest(suggestLi){
 	log("insertSuggest :: enter, suggestLi = " + htmlEscape(suggestLi.innerHTML));
 	var inputItem = document.getElementById("item-edit");
 	var email = suggestLi.innerHTML.replace(/<[\/]?strong>/g,"");
-	var newItem = createItem(email);
-	itemList.insertBefore(newItem, inputItem);
-	newItem.ondblclick = function(e){
-		var src = e.target;
-		while(src.className !== "email-list-item"){
-			src = src.parentNode;
-		}
-		editItem(src);
-	};
+	var item = createItem(email);
+	itemList.insertBefore(item, inputItem);
 	changeInputValue("");
 	log("insertSuggest :: end, email = " + htmlEscape(email));
 }
 function hoverSuggest(li){
 	log("hoverSuggest :: enter, hoverSuggestLi = " + hoverSuggestLi);
 	if(hoverSuggestLi){
-		hoverSuggestLi.className = hoverSuggestLi.className.replace(/hover/, "").replace(/^\s+|\s+$/g, "");
+		hoverSuggestLi.className = hoverSuggestLi.className.replace(/hover/, "").trim();
 	}
-	li.className = (li.className + " hover").replace(/^\s+|\s+$/g, "");
+	li.className = (li.className + " hover").trim();
 	hoverSuggestLi = li;
 	log("hoverSuggest :: end, li = " + htmlEscape(li.innerHTML));
 }
