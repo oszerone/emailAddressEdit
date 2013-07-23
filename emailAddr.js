@@ -45,6 +45,7 @@ function initEdit(){
 }
 function bindEvent(){
 	itemList.onclick = itemList.ondblclick = function(e){
+		e = e || event;
 		if(e.type === "dblclick"){
 			var src = e.target;
 			while(src.className !== "email-list-item" && src.className !== "email-list"){
@@ -57,6 +58,7 @@ function bindEvent(){
 		focusInput();
 	};
 	suggestUl.onmouseover = function(e){//selection effect
+		e = e || event;
 		var src = e.target;
 		if(src.tagName.toLowerCase() === "li"){
 			hoverSuggest(src);
@@ -64,6 +66,7 @@ function bindEvent(){
 		}
 	};
 	suggestUl.onclick = function(e){//selct
+		e = e || event;
 		var src = e.target;
 		while(src.className !== "suggest-email" && src.tagName.toLowerCase() !== "li"){
 			src = src.parentNode;
@@ -76,6 +79,7 @@ function bindEvent(){
 	};
 	var editInput = document.getElementById("item-edit").childNodes[0];
 	editInput.onkeydown = editInput.onkeypress = editInput.onkeyup = function(e){
+		e = e || event;
 		changeInputValue();
 		checkToDo(e);
 	};
