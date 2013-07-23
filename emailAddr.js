@@ -47,7 +47,7 @@ function bindEvent(){
 	itemList.onclick = itemList.ondblclick = function(e){
 		e = e || event;
 		if(e.type === "dblclick"){
-			var src = e.target;
+			var src = e.target || e.srcElement;
 			while(src.className !== "email-list-item" && src.className !== "email-list"){
 				src = src.parentNode;
 			}
@@ -59,7 +59,7 @@ function bindEvent(){
 	};
 	suggestUl.onmouseover = function(e){//selection effect
 		e = e || event;
-		var src = e.target;
+		var src = e.target || e.srcElement;
 		if(src.tagName.toLowerCase() === "li"){
 			hoverSuggest(src);
 			log("onmouseover: " + htmlEscape(src.innerHTML));
@@ -67,7 +67,7 @@ function bindEvent(){
 	};
 	suggestUl.onclick = function(e){//selct
 		e = e || event;
-		var src = e.target;
+		var src = e.target || e.srcElement;
 		while(src.className !== "suggest-email" && src.tagName.toLowerCase() !== "li"){
 			src = src.parentNode;
 		}
@@ -86,12 +86,13 @@ function bindEvent(){
 }
 function checkToDo(e){//函数名称不太好
 	var now = new Date().getTime();
+	var src = e.tartet || e.srcElement;
 	log("checkToDo :: enter, lastActionTime = " + lastActionTime + ", type = " + e.type);
 	//现在如果删除最后一个字母时会删除前一个item
 	if(e.type === "keydown" && (now - lastActionTime) > 50){//这个响应时间需要调查
 		if(isActionKey(e.keyCode)){
 			log("checkToDo :: type = " + e.type + ", keyCode = " + e.keyCode);
-			if(e.target.value === ""){
+			if(src.value === ""){
 				if(e.keyCode === actionKeys.BACKSPACE){
 					deletePrevItem();
 				}else if(e.keyCode === actionKeys.LEFT){
@@ -114,7 +115,7 @@ function checkToDo(e){//函数名称不太好
 		}
 	}else if(e.type === "keyup"){
 		if(e.keyCode === actionKeys.SEMICOLON){
-			var val = e.target.value.replace(/;/g, "").trim();
+			var val = src.value.replace(/;/g, "").trim();
 			if(val){
 				insertItem(val);
 			}
